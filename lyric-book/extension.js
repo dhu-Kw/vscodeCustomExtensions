@@ -1,34 +1,43 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+const fs = require('fs');
 
 /**
  * @param {vscode.ExtensionContext} context
  */
-function activate(context) {
+function activate({ subscriptions }) {
+  
+  const comdId = 'lyric-book.statusBarLyric';
+  const nextLineComdId = 'lyric-book.nextLineLyric';
+  const data = { 'lyrics': [] , 'total': 0, 'current': 0};
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "lyric-book" is now active!');
+  const myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
+  myStatusBarItem.command = comdId;
+  subscriptions.push(myStatusBarItem);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('lyric-book.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
+  subscriptions.push(
+    vscode.commands.registerCommand(comdId, () => {
+      const { lyricPath } = vscode.workspace.getConfiguration('lyric');
+      const fr = fs.readFileSync(lyricPath, { encoding: 'utf-8' });
+      const lines = fr.split(/\r?\n/);
+      data['lyrics'] = lines;
+      data['total'] = lines.length;
+      console.log(data);
+      myStatusBarItem.text = `${data['lyrics'][0]}        1 / ${data['total']}`;
+      myStatusBarItem.show();
+    })
+  );
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Lyric Book!');
-	});
-
-	context.subscriptions.push(disposable);
+  subscriptions.push(
+    vscode.commands.registerCommand(nextLineComdId, () => {
+      data['current'] += 1;
+      if (data['current'] === data['total']) data['current'] = 0;
+      myStatusBarItem.text = `${data['lyrics'][data['current']]}        ${data['current'] + 1} / ${data['total']}`;
+      myStatusBarItem.show();
+    })
+  );
 }
 
-// This method is called when your extension is deactivated
-function deactivate() {}
+function deactivate() { }
 
 module.exports = {
 	activate,

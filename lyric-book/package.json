@@ -4,7 +4,7 @@
   "description": "show lyric text",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.81.0"
+    "vscode": "^1.80.0"
   },
   "categories": [
     "Other"
@@ -13,9 +13,30 @@
   "main": "./extension.js",
   "contributes": {
     "commands": [{
-      "command": "lyric-book.helloWorld",
-      "title": "Hello World"
-    }]
+      "command": "lyric-book.statusBarLyric",
+      "title": "状态栏歌词",
+      "category": "Lyric Book"
+    }],
+    "configuration": {
+      "title": "lyric",
+      "properties": {
+        "lyric.lyricPath": {
+          "type": "string",
+          "default": null,
+          "description": "type lyric absolute path"
+        }
+      }
+    },
+    "keybindings":[
+      {
+        "command": "lyric-book.statusBarLyric",
+        "key": "ctrl+alt+/"
+      },
+      {
+        "command": "lyric-book.nextLineLyric",
+        "key": "ctrl+alt+."
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",
@@ -23,7 +44,7 @@
     "test": "node ./test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.81.0",
+    "@types/vscode": "^1.80.0",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "20.2.5",
